@@ -1,0 +1,58 @@
+Written Questions
+
+Q1. Run the web crawler using the configurations located at src/main/config/written_question_1a.json and
+    src/main/config/written_question_1b.json. The only difference between these configurations is that one always uses
+    the sequential crawler and the other always uses the parallel crawler. Inspect the profile output in
+    profileData.txt.
+
+    If you are using a multi-processor computer, you should notice that SequentialWebCrawler#crawl and
+    ParallelWebCrawler#crawl took about the same amount of time, but PageParserImpl#parse took much longer when run with
+    the ParallelWebCrawler.
+
+    Why did the parser take more time when run with ParallelWebCrawler?
+    More urls can be visited by parser when run with ParallelWebCrawler. This requires more threads. -> more time consuming.
+
+Q2. Your manager ran your crawler on her old personal computer, using the configurations from Q1, and she notices that
+    the sequential crawler actually outperforms the parallel crawler. She would like to know why.
+
+    (a) Suggest one reason why the sequential web crawler was able to read more web pages than the parallel crawler.
+        (Hint: Try setting "parallelism" to 1 in the JSON configs to simulate your manager's computer.)
+        This is because each thread needs to allocate memory for the call stack. Older personal computers are not
+        qualified to use multiple threads. The parallel crawler slows her computer down.
+
+    (b) Suggest one scenario in which the parallel web crawler will almost certainly perform better than the sequential
+        crawler. Why will it perform better?
+        Parallel web crawlers will certainly perform better than sequential crawlers on multi-processor computers.
+        You can handle more threads and use parallelism.
+
+
+Q3. Analyze your method profiler through the lens of Aspect Oriented Programming, by answering the following questions:
+
+    (a) What cross-cutting concern is being addressed by the com.udacity.webcrawler.profiler.Profiler class?
+    Performance profiling is being addressed.
+    (b) What are the join points of the Profiler in the web crawler program?
+    Methods that are annotated with Profiler.
+
+Q4. Identify three (3) different design patterns used in this project, and explain which interfaces, classes, and/or
+    libraries use or implement those design patterns.
+
+    For each pattern, name one thing about the pattern that you LIKED, and one thing you DISLIKED. If you did not like
+    anything, you can name two things you disliked.
+
+    1. Dependency Injection Pattern
+       - Both sequential and parallel web crawlers implemented DI patterns. Injection has been configured in the WebCrawler Module class.
+       - I liked that it had the ability to provide an override to the configuration JSON file
+       that tells the code what kind of web crawler I want to run.
+       This made it very easy to test sequential and parallel web crawlers at the end of the project.
+
+    2. Single tone pattern:
+        - The method in the module is injected with Singleton. One module class has only one instance and the method is private.
+        This prevents the client from calling the constructor directly to create another instance.
+        - I didn't like Singleton Pattern, because it limits only one instance to be created.
+
+    3. Strategy Design Pattern
+        - Both NoOpProfiler & ProfilerImpl classes implemented profiler interfaces.
+        - What I didn't like was that the GUICE injector promoted by this strategy design pattern is a little hard to understand.
+        I'm not sure, I fully understand that, but I feel like I have a basic idea of what it offers.
+
+
