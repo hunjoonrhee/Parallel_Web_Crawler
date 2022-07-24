@@ -17,14 +17,14 @@ final class ProfilingMethodInterceptor implements InvocationHandler {
 
   private final Clock clock;
   private final Object delegate;
-  private final ZonedDateTime startTime;
+//  private final ZonedDateTime startTime;
   private final ProfilingState state;
   // TODO: You will need to add more instance fields and constructor arguments to this class.
-  ProfilingMethodInterceptor(Clock clock, Object delegate, ZonedDateTime startTime, ProfilingState state) {
+  ProfilingMethodInterceptor(Clock clock, Object delegate, ProfilingState state) {
     this.clock = Objects.requireNonNull(clock);
-    this.delegate = delegate;
-    this.startTime = startTime;
-    this.state = state;
+    this.delegate = Objects.requireNonNull(delegate);
+//    this.startTime = startTime;
+    this.state = Objects.requireNonNull(state);
   }
 
   @Override
@@ -34,20 +34,21 @@ final class ProfilingMethodInterceptor implements InvocationHandler {
     //       invoke the method using the object that is being profiled. Finally, for profiled
     //       methods, the interceptor should record how long the method call took, using the
     //       ProfilingState methods.
-    Object target;
-    Instant start = null;
-    if (method.getAnnotation(Profiled.class) != null){
-      start = clock.instant();
+//    if (method.getAnnotation(Profiled.class) != null){
+      Instant start = clock.instant();
       try {
-        target = method.invoke(delegate, args);
+        return method.invoke(delegate, args);
       } catch (InvocationTargetException e) {
         throw e.getTargetException();
-      }finally {
-        Duration duration = Duration.between(start, clock.instant());
-        state.record(delegate.getClass(), method, duration);
+      } catch(IllegalAccessException e){
+        throw new RuntimeException(e);
+      }
+      finally {
+        if (method.getAnnotation(Profiled.class) != null){
+          Duration duration = Duration.between(start, clock.instant());
+          state.record(delegate.getClass(), method, duration);
+        }
       }
     }
-
-    return method.invoke(delegate, args);
-  }
+//  }
 }
